@@ -45,11 +45,11 @@ colorFreezeLevel: 2
 
     markMapContent = markMapContent.trim()
 
-    if (!markMapContent || markMapContent.length === 0) {
+    if (!markMapContent) {
         throw new Error("Generated markdown in empty")
     }
 
-    console.log(markMapContent)
+    return markMapContent
 }
 
 export default convertJsonToMarkmap;

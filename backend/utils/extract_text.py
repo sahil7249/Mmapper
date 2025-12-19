@@ -11,4 +11,4 @@ def extract_text_from_pdf(pdf_path):
 if __name__ == "__main__":
     pdf_path = sys.argv[1]
     extracted_text = extract_text_from_pdf(pdf_path)
-    return extracted_text
+    print(extracted_text)
