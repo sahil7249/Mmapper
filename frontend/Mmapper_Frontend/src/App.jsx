@@ -6,7 +6,7 @@ const App = () => {
     <>
       <Navbar />
       <Main />
-      <Footer />
+      <Footer /> 
     </>
   )
 }
