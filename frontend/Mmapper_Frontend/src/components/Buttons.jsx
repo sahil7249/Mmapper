@@ -23,3 +23,11 @@ export const MapButton = ({ name, onClick,children }) => {
         </button>
     )   
 }
+
+export const AllMaps = ({handleClick}) =>{
+    return(
+        <button className='border p-2 rounded-xl' onClick={handleClick}>
+            All Maps
+        </button>
+    )
+}
