@@ -15,10 +15,10 @@ export const LogIn = () => {
     )
 }
 
-export const MapButton = ({ name, onClick,children }) => {
+export const MapButton = ({ name, handleClick,children }) => {
     return (
         
-        <button className="border p-2 rounded-xl flex items-center gap-2">
+        <button className="border p-2 rounded-xl flex items-center gap-2" onClick={handleClick}>
             {children} {name}
         </button>
     )   
