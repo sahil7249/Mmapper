@@ -1,10 +1,10 @@
-import { exec } from 'child_process'
+import { execFile } from 'child_process'
 import util from 'util'
 import fs from 'fs'
 import callLama from '../utils/callLama.js'
 import convertJsonToMarkmap from '../utils/convertJsonToMarkmap.js'
 
-const execPromise = util.promisify(exec)
+const execPromise = util.promisify(execFile)
 
 const processPdf = async (req, res) => {
     let pdfPath = null
@@ -18,7 +18,7 @@ const processPdf = async (req, res) => {
         console.log('Processing PDF:', pdfPath)
 
         console.log("Extracting text from pdf....")
-        const { stdout: extractedText, stderr } = await execPromise(`python3 ./utils/extract_text.py "${pdfPath}"`)
+        const { stdout: extractedText, stderr } = await execPromise('python3',['./utils/extract_text.py',pdfPath])
 
         if (stderr) {
             console.log('Error while extracting text from PDF :', stderr)
@@ -39,12 +39,6 @@ const processPdf = async (req, res) => {
 
         const markMapResponse = convertJsonToMarkmap(jsonContent)
 
-        await fs.unlink(pdfPath,(err => {
-            if (err) console.log(err);
-            else {
-                console.log("\nDeleted file");
-            }
-        }))
 
         res.json({
             success: true,
@@ -54,23 +48,15 @@ const processPdf = async (req, res) => {
     } catch (error) {
         console.log('Error: ', error)
 
-        if (pdfPath) {
-            try {
-                fs.unlink(pdfPath,(err) => {
-                    if(err) {
-                        console.log("Error while unlinking the file:",err)
-                    }
-                    console.log(`${pdfPath} is deleted`)
-                })
-            } catch (e) {
-                console.log("Error while unlinking the PDF: ", e.message)
-            }
-        }
-
         res.status(500).json({
             success: false,
             error: error.message
         })
+    } finally {
+        if(pdfPath) {
+            await fs.promises.unlink(pdfPath).catch(() => {})
+        }
+        console.log("File deleted")
     }
 }
 
