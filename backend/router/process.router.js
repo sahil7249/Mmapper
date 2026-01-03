@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import processPdf from '../controller/process.controller.js'
+import {processPdf,uploadPdf} from '../controller/process.controller.js'
 import multer from 'multer'
 
 const upload = multer({
@@ -9,6 +9,7 @@ const upload = multer({
 
 const processRouter = Router()
 
-processRouter.post('/process-pdf',upload.single('pdf'),processPdf)
+processRouter.post('/upload-pdf',upload.single('pdf'),uploadPdf)
+processRouter.get('/process-pdf',processPdf)
 
 export default processRouter

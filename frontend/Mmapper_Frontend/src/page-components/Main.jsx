@@ -44,7 +44,7 @@ export const Main = () => {
             source = new EventSource('http://localhost:8080/api/process-pdf')
 
             source.onmessage = (event) => {
-                const responseData = JSON.parse(event)
+                const responseData = JSON.parse(event.data)
 
                 setCurrentStep(responseData.stepNumber)
 
