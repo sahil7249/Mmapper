@@ -1,32 +1,78 @@
 import { UIStateContext } from "../App"
-import { useContext } from "react"
+import { useContext, useState } from "react"
+import { ProgressModal } from "../components/ProgressModal"
 
 export const Main = () => {
 
     const { setState, setData } = useContext(UIStateContext)
+    const [isModalOpen,setIsModalOpen] = useState(false)
+    const [currentStep,setCurrentStep] = useState(0)
+
 
     const handleFileUpload = async (e) => {
         const file = e.target.files[0]
+
+        if(file.type !== 'application/pdf') {
+            alert('Please upload a pdf file')
+            return
+        }
+
+        setIsModalOpen(true)
+        
         const formdata = new FormData()
         formdata.append('pdf', file)
 
+
+        let source
+        let completed = false
         try {
-            const response = await fetch('http://localhost:8080/api/process-pdf', {
+            const uploadRes = await fetch('http://localhost:8080/api/upload-pdf', {
                 method: 'POST',
                 body: formdata
             })
 
-            if (!response.ok) {
-                console.error('Error: ', response.error)
+            if (!uploadRes.ok) {
+                throw new Error('Upload Failed')
             }
 
-            const data = await response.json()
+            const uploadData = await uploadRes.json()
 
-            const markdown = data.markdown
-            setData(markdown)
-            setState('mindmap')
+            if(!uploadData.success) {
+                throw new Error(uploadData.message)
+            }
+
+            source = new EventSource('http://localhost:8080/api/process-pdf')
+
+            source.onmessage = (event) => {
+                const responseData = JSON.parse(event)
+
+                setCurrentStep(responseData.stepNumber)
+
+                if(responseData.isEnd) {
+                    completed = true
+                    setState('mindmap')
+                    setData(responseData.markmap)
+                    console.log("End of backend response")
+                    source.close()
+                    console.log("Connection closed from client")
+                }
+            }
+
+            source.onerror = () => {
+                if(completed) {
+                    console.log("SSE closed naturally")
+                }
+                console.log("SSE Connection error")
+                setIsModalOpen(false)
+                source.close()
+                alert('SSE Error occured Failed to process pdf')
+            }
+
         } catch (error) {
             console.log('Error while uploading a file: ', error)
+            setIsModalOpen(false)
+            alert("Failed to upload file")
+            if(source) source.close()
         }
     }
 
@@ -65,6 +111,7 @@ export const Main = () => {
                         </button>
                     </div>
                 </div>
+                <ProgressModal isModalOpen={isModalOpen} currentStep={currentStep} />
             </div>
         </div>
     )
