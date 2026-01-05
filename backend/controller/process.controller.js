@@ -75,12 +75,13 @@ const processPdf = async (req,res) => {
         responseData.stepNumber++
         res.write(`data: ${JSON.stringify(responseData)}\n\n`)
         
-        const markMapResponse = convertJsonToMarkmap(JSON.parse(jsonContent))
+        const {markmap,title} = convertJsonToMarkmap(JSON.parse(jsonContent))
         
         console.log("Converting markdown into markmap")
         responseData.stepNumber++
         responseData.isEnd = true
-        responseData.markmap = markMapResponse
+        responseData.markmap = markmap
+        responseData.title = title
         res.write(`data: ${JSON.stringify(responseData)}\n\n`)
 
     } catch (error) {

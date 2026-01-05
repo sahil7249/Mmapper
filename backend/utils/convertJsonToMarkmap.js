@@ -49,7 +49,7 @@ colorFreezeLevel: 2
         throw new Error("Generated markdown in empty")
     }
 
-    return markMapContent
+    return {markmap:markMapContent,title:jsonContent.title}
 }
 
 export default convertJsonToMarkmap;

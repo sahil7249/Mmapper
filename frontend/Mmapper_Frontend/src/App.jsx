@@ -10,13 +10,15 @@ const App = () => {
   const [state,setState] = useState("default")
   const [data,setData] = useState("")
 
+  const markdown_content = JSON.parse(localStorage.getItem('mindmap'))
+  
   return (
     <>
     <UIStateContext.Provider value={{state:state,setState:setState,data:data,setData:setData}}>
       <Navbar />
       {state == "default" && <Main />}
       {state == "mindmap" && <MindMapContainer markdown={data} />}
-      {state == "list" && <MapList maps={[]}/>}
+      {state == "list" && <MapList maps={markdown_content}/>}
       <Footer />
     </UIStateContext.Provider>
     </>

@@ -3,11 +3,12 @@ import { Download, SaveIcon, RotateCcw, Search } from "lucide-react"
 import { fillTemplate } from 'markmap-render';
 import { MindMap } from "./MindMap"
 
-export const MindMapContainer = ({markdown}) => {
+export const MindMapContainer = ({ markdown }) => {
     let instanceData = ''
     const getData = (data) => {
         instanceData = data
     }
+
 
     const handleDownload = () => {
         if (!instanceData) return;
@@ -34,8 +35,36 @@ export const MindMapContainer = ({markdown}) => {
     }
 
     const handleFit = () => {
-        if(instanceData.markapInstance) {
+        if (instanceData.markapInstance) {
             instanceData.markapInstance.fit()
+        }
+    }
+
+    const handleSave = async () => {
+        const localData = JSON.parse(localStorage.getItem('mindmap'))
+        const data = {
+            title: localData[0].title,
+            markdown_content: localData[0].markdown_content
+        }
+
+        try {
+            const dbResponse = await fetch('http://localhost:8080/api/save-map', {
+                method: 'POST',
+                headers:{
+                    'Content-Type':'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            const dbData = await dbResponse.json()
+
+            if (!dbData.success) {
+                console.log("Unable to save the Mindmap: ", dbData.message)
+            }
+
+            alert(dbData.message)
+
+        } catch (error) {
+            console.log("Error while saving the mindmap: ", error.message)
         }
     }
 
@@ -43,17 +72,17 @@ export const MindMapContainer = ({markdown}) => {
         <div className="w-screen px-10 mt-5">
             <div className="flex flex-row-reverse gap-5 mb-2 mr-2">
                 <MapButton name={"Fit"} handleClick={handleFit}>
-                    <Search />  
+                    <Search />
                 </MapButton>
                 <MapButton name={"Download"} handleClick={handleDownload}>
                     <Download />
                 </MapButton>
-                <MapButton name={"Save"} >
+                <MapButton name={"Save"} handleClick={handleSave}  >
                     <SaveIcon />
                 </MapButton>
             </div>
             <div className="border h-180 rounded-2xl">
-                <MindMap markdown={markdown} handleData={getData}/>
+                <MindMap markdown={markdown} handleData={getData} />
             </div>
         </div>
     )

@@ -2,22 +2,28 @@ import express from 'express'
 import dotenv from 'dotenv'
 import cors from 'cors'
 import processRouter from './router/process.router.js'
+import connectToDB from './database/dbConnection.js'
 
-dotenv.config({path:'.env'})
+dotenv.config({ path: '.env' })
 
 const app = express()
 const PORT = process.env.PORT || 8000
 const corsOptions = {
-    origin:'http://localhost:5173',
-    optionsSuccessStatus:200
+    origin: 'http://localhost:5173',
+    optionsSuccessStatus: 200
 }
 
 
 app.use(express.json())
 app.use(cors(corsOptions))
 
-app.use('/api',processRouter)
-
-app.listen(PORT,() => {
-    console.log(`App is listening on http://localhost:${PORT}`)
-})
+app.use('/api', processRouter)
+connectToDB()
+    .then(() => {
+        app.listen(PORT, () => {
+            console.log(`App is listening on http://localhost:${PORT}`)
+        })
+    })
+    .catch((error) => {
+        console.log("MongoDB connection failed",error)
+    })

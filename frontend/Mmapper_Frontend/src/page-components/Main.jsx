@@ -49,9 +49,16 @@ export const Main = () => {
                 setCurrentStep(responseData.stepNumber)
 
                 if(responseData.isEnd) {
+
+                    const mindmapContent = {
+                        title:responseData.title,
+                        markdown_content:responseData.markmap
+                    }
+
                     completed = true
                     setState('mindmap')
                     setData(responseData.markmap)
+                    localStorage.setItem('mindmap',JSON.stringify([mindmapContent]))
                     console.log("End of backend response")
                     source.close()
                     console.log("Connection closed from client")
