@@ -29,4 +29,18 @@ const saveMindMapToDB = async (req, res) => {
 }
 
 
-export { saveMindMapToDB }
+const getAllMapData = async (req,res) => {
+    const mapData = await Map.find()
+
+    if(!mapData){
+        return res.status(404).json({
+            message:"Map data is empty"
+        })
+    }
+
+    return res.json({
+        data:mapData
+    })
+}
+
+export { saveMindMapToDB,getAllMapData }
