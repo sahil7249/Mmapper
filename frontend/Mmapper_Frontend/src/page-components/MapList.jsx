@@ -3,17 +3,17 @@ import mapLogo from '../assets/mindmap.png'
 import { UIStateContext } from "../App"
 import { useContext } from "react"
 
-const MapElem = ({ title,markdata }) => {
-    const { setData,setState } = useContext(UIStateContext)
-    
+const MapElem = ({ title, markdata }) => {
+    const { setData, setState } = useContext(UIStateContext)
+
     const handleClick = () => {
         setData(markdata)
-        setState('mindmap')    
+        setState('mindmap')
     }
 
     return (
         <div className="border p-4 w-96 mt-5 rounded-xl flex items-center gap-2" onClick={handleClick}>
-            <img src={mapLogo} alt="mind map logo" width={30}/> {title}
+            <img src={mapLogo} alt="mind map logo" width={30} /> {title}
         </div>
     )
 }
@@ -34,9 +34,9 @@ export const MapList = ({ maps }) => {
         <div className="mt-5 px-5">
             {maps?.length > 0 ? (
                 maps.map(map => (
-                    <MapElem title={map.title} key={map.title}  markdata={map.markdown_content}/>
+                    <MapElem title={map.title} key={map.title} markdata={map.markdown_content} />
                 ))
-            ):(
+            ) : (
                 <NoMindMapFound />
             )}
         </div>
