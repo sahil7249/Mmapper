@@ -1,24 +1,26 @@
 import { UIStateContext } from "../App"
 import { useContext, useState } from "react"
 import { ProgressModal } from "../components/ProgressModal"
+import { useNavigate } from "react-router-dom"
 
 export const Main = () => {
 
-    const { setState, setData } = useContext(UIStateContext)
-    const [isModalOpen,setIsModalOpen] = useState(false)
-    const [currentStep,setCurrentStep] = useState(0)
+    const { setData } = useContext(UIStateContext)
+    const [isModalOpen, setIsModalOpen] = useState(false)
+    const [currentStep, setCurrentStep] = useState(0)
+    const navigate = useNavigate()
 
 
     const handleFileUpload = async (e) => {
         const file = e.target.files[0]
 
-        if(file.type !== 'application/pdf') {
+        if (file.type !== 'application/pdf') {
             alert('Please upload a pdf file')
             return
         }
 
         setIsModalOpen(true)
-        
+
         const formdata = new FormData()
         formdata.append('pdf', file)
 
@@ -37,7 +39,7 @@ export const Main = () => {
 
             const uploadData = await uploadRes.json()
 
-            if(!uploadData.success) {
+            if (!uploadData.success) {
                 throw new Error(uploadData.message)
             }
 
@@ -48,25 +50,23 @@ export const Main = () => {
 
                 setCurrentStep(responseData.stepNumber)
 
-                if(responseData.isEnd) {
+                if (responseData.isEnd) {
 
                     const mindmapContent = {
-                        title:responseData.title,
-                        markdown_content:responseData.markmap
+                        title: responseData.title,
+                        markdown_content: responseData.markmap
                     }
 
                     completed = true
-                    setState('mindmap')
                     setData(responseData.markmap)
-                    localStorage.setItem('mindmap',JSON.stringify([mindmapContent]))
+                    navigate('mindmap')
+                    localStorage.setItem('mindmap', JSON.stringify([mindmapContent]))
                     console.log("End of backend response")
-                    source.close()
-                    console.log("Connection closed from client")
                 }
             }
 
             source.onerror = () => {
-                if(completed) {
+                if (completed) {
                     console.log("SSE closed naturally")
                 }
                 console.log("SSE Connection error")
@@ -79,7 +79,7 @@ export const Main = () => {
             console.log('Error while uploading a file: ', error)
             setIsModalOpen(false)
             alert("Failed to upload file")
-            if(source) source.close()
+            if (source) source.close()
         }
     }
 

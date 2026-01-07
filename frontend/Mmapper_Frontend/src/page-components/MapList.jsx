@@ -2,17 +2,19 @@ import { FileText } from "lucide-react"
 import mapLogo from '../assets/mindmap.png'
 import { UIStateContext } from "../App"
 import { useContext } from "react"
+import { useNavigate } from "react-router-dom"
 
 const MapElem = ({ title, markdata }) => {
-    const { setData, setState } = useContext(UIStateContext)
+    const { setData } = useContext(UIStateContext)
+    const navigate = useNavigate()
 
     const handleClick = () => {
         setData(markdata)
-        setState('mindmap')
+        navigate('/mindmap')
     }
 
     return (
-        <div className="border p-4 w-96 mt-5 rounded-xl flex items-center gap-2" onClick={handleClick}>
+        <div className="border p-4 w-96 mt-5 rounded-xl flex items-center gap-2 cursor-pointer" onClick={handleClick}>
             <img src={mapLogo} alt="mind map logo" width={30} /> {title}
         </div>
     )

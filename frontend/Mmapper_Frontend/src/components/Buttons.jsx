@@ -1,4 +1,3 @@
-import { Download } from 'lucide-react'
 export const SignUp = () => {
     return (
         <a href="#" className="border p-2 rounded-xl">
@@ -18,7 +17,7 @@ export const LogIn = () => {
 export const MapButton = ({ name, handleClick,children }) => {
     return (
         
-        <button className="border p-2 rounded-xl flex items-center gap-2" onClick={handleClick}>
+        <button className="border p-2 rounded-xl flex items-center gap-2 cursor-pointer" onClick={handleClick}>
             {children} {name}
         </button>
     )   
@@ -26,7 +25,7 @@ export const MapButton = ({ name, handleClick,children }) => {
 
 export const AllMaps = ({handleClick}) =>{
     return(
-        <button className='border p-2 rounded-xl' onClick={handleClick}>
+        <button className='border p-2 rounded-xl cursor-pointer' onClick={handleClick}>
             All Maps
         </button>
     )

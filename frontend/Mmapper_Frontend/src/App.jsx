@@ -4,6 +4,8 @@ import { Footer } from "./page-components/Footer"
 import { MindMapContainer } from "./page-components/MindMapContainer"
 import { MapList } from "./page-components/MapList"
 import { createContext, useState, useEffect } from "react"
+import { Routes, Route } from 'react-router-dom'
+
 
 export const UIStateContext = createContext(null)
 
@@ -18,8 +20,6 @@ const fetchDBData = async () => {
     if (!dbResponse.ok) {
       console.log(dbResponse.message)
     }
-    
-    
     const mapData = await dbResponse.json()
     console.log("Map data fetched successfully")
     return mapData
@@ -30,7 +30,6 @@ const fetchDBData = async () => {
 
 
 const App = () => {
-  const [state, setState] = useState("default")
   const [data, setData] = useState("")
   const [mapData, setMapData] = useState([])
 
@@ -39,16 +38,26 @@ const App = () => {
     markdown_data.then(response => {
       setMapData(response.data)
     })
-
   }, [])
 
   return (
     <>
-      <UIStateContext.Provider value={{ state: state, setState: setState, data: data, setData: setData }}>
+      <UIStateContext.Provider value={{ data: data, setData: setData }}>
         <Navbar />
-        {state == "default" && <Main />}
-        {state == "mindmap" && <MindMapContainer markdown={data} />}
-        {state == "list" && <MapList maps={mapData} />}
+        <Routes>
+          <Route
+            path="/"
+            element={<Main />}
+          />
+          <Route
+            path="/mindmap"
+            element={<MindMapContainer markdown={data} />}
+          />
+          <Route
+            path="/list"
+            element={<MapList maps={mapData} />}
+          />
+        </Routes>
         <Footer />
       </UIStateContext.Provider>
     </>
