@@ -90,7 +90,7 @@ const processPdf = async (req,res) => {
             stepNumber:responseData.stepNumber,
             isEnd:true,
             error:error.message
-        })}`)
+        })}\n\n`)
         res.end()
     } finally {
         if(pdfPath) {
