@@ -54,7 +54,7 @@ const callLama = async (extractedText) => {
                     JSON output:`
                 }
             ],
-            model: "meta-llama/Llama-3.1-8B-Instruct:nebius",
+            model: "meta-llama/Llama-3.1-8B-Instruct:novita",
             temperature: 0.0
         }).then((response) => {
             return response
