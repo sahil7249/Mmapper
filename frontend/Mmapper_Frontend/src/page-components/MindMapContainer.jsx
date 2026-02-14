@@ -1,5 +1,5 @@
-import { MapButton } from "../components/Buttons"
-import { Download, SaveIcon, RotateCcw, Search } from "lucide-react"
+import { MapButton, HomeBtn } from "../components/Buttons"
+import { Download, SaveIcon, Search } from "lucide-react"
 import { fillTemplate } from 'markmap-render';
 import { MindMap } from "./MindMap"
 
@@ -50,8 +50,8 @@ export const MindMapContainer = ({ markdown }) => {
         try {
             const dbResponse = await fetch('http://localhost:8080/api/save-map', {
                 method: 'POST',
-                headers:{
-                    'Content-Type':'application/json'
+                headers: {
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(data)
             })
@@ -70,16 +70,21 @@ export const MindMapContainer = ({ markdown }) => {
 
     return (
         <div className="w-screen px-10 mt-5">
-            <div className="flex flex-row-reverse gap-5 mb-2 mr-2">
-                <MapButton name={"Fit"} handleClick={handleFit}>
-                    <Search />
-                </MapButton>
-                <MapButton name={"Download"} handleClick={handleDownload}>
-                    <Download />
-                </MapButton>
-                <MapButton name={"Save"} handleClick={handleSave}  >
-                    <SaveIcon />
-                </MapButton>
+            <div className="flex justify-between ">
+                <div>
+                    <HomeBtn />
+                </div>
+                <div className="flex gap-2.5 mb-2.5">
+                    <MapButton name={"Fit"} handleClick={handleFit}>
+                        <Search />
+                    </MapButton>
+                    <MapButton name={"Download"} handleClick={handleDownload}>
+                        <Download />
+                    </MapButton>
+                    <MapButton name={"Save"} handleClick={handleSave}  >
+                        <SaveIcon />
+                    </MapButton>
+                </div>
             </div>
             <div className="border h-180 rounded-2xl">
                 <MindMap markdown={markdown} handleData={getData} />

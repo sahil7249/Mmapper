@@ -1,7 +1,8 @@
 import { UIStateContext } from "../App"
-import { useContext, useState } from "react"
+import { useContext, useState, useEffect, useRef } from "react"
 import { ProgressModal } from "../components/ProgressModal"
 import { useNavigate } from "react-router-dom"
+import { io } from 'socket.io-client'
 
 export const Main = () => {
 
@@ -10,6 +11,55 @@ export const Main = () => {
     const [currentStep, setCurrentStep] = useState(0)
     const navigate = useNavigate()
 
+    const socketRef = useRef(null)
+
+    useEffect(() => {
+        socketRef.current = io('http://localhost:8080')
+
+        socketRef.current.on('connect', () => {
+            console.log('Client connected to server')
+        })
+
+        socketRef.current.on('disconnect', () => {
+            console.log('Client disconnected from server')
+        })
+
+        socketRef.current.on('pipeline:update', (data) => {
+            setCurrentStep(data.step)
+        })
+
+        socketRef.current.on('pipeline:complete', (data) => {
+            try {
+                const markmapData = JSON.parse(data.markmapData)
+                setIsModalOpen(false)
+                setData(markmapData)
+                navigate('mindmap')
+                const mindmapContent = {
+                    title: data.title,
+                    markdown_content: markmapData
+                }
+                localStorage.setItem('mindmap', JSON.stringify([mindmapContent]))
+                console.log("Process Completed")
+
+            } catch (error) {
+                console.log("Error : ",error.message)                
+            }
+        })
+
+        socketRef.current.on('connection_error', () => {
+            setIsModalOpen(false)
+            console.log(err.message);
+            console.log(err.description);
+            console.log(err.context);
+        })
+
+        return () => {
+            if (socketRef.current) {
+                socketRef.current.disconnect()
+            }
+        }
+
+    }, [])
 
     const handleFileUpload = async (e) => {
         const file = e.target.files[0]
@@ -24,63 +74,23 @@ export const Main = () => {
         const formdata = new FormData()
         formdata.append('pdf', file)
 
+        const uploadRes = await fetch('http://localhost:8080/api/upload-pdf', {
+            method: 'POST',
+            body: formdata
+        })
 
-        let source
-        let completed = false
-        try {
-            const uploadRes = await fetch('http://localhost:8080/api/upload-pdf', {
-                method: 'POST',
-                body: formdata
-            })
-
-            if (!uploadRes.ok) {
-                throw new Error('Upload Failed')
-            }
-
-            const uploadData = await uploadRes.json()
-
-            if (!uploadData.success) {
-                throw new Error(uploadData.message)
-            }
-
-            source = new EventSource('http://localhost:8080/api/process-pdf')
-
-            source.onmessage = (event) => {
-                const responseData = JSON.parse(event.data)
-
-                setCurrentStep(responseData.stepNumber)
-
-                if (responseData.isEnd) {
-
-                    const mindmapContent = {
-                        title: responseData.title,
-                        markdown_content: responseData.markmap
-                    }
-
-                    completed = true
-                    setData(responseData.markmap)
-                    navigate('mindmap')
-                    localStorage.setItem('mindmap', JSON.stringify([mindmapContent]))
-                    console.log("End of backend response")
-                }
-            }
-
-            source.onerror = () => {
-                if (completed) {
-                    console.log("SSE closed naturally")
-                }
-                console.log("SSE Connection error")
-                setIsModalOpen(false)
-                source.close()
-                alert('SSE Error occured Failed to process pdf')
-            }
-
-        } catch (error) {
-            console.log('Error while uploading a file: ', error)
+        if (!uploadRes.ok) {
             setIsModalOpen(false)
-            alert("Failed to upload file")
-            if (source) source.close()
+            throw new Error('Upload Failed')
         }
+
+        const uploadData = await uploadRes.json()
+
+        if (!uploadData.success) {
+            setIsModalOpen(false)
+            throw new Error(uploadData.message)
+        }
+
     }
 
 

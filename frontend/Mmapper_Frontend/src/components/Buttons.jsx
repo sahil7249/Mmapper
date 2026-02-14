@@ -1,3 +1,5 @@
+import { Navigate, useNavigate } from "react-router-dom"
+
 export const SignUp = () => {
     return (
         <a href="#" className="border p-2 rounded-xl">
@@ -14,19 +16,32 @@ export const LogIn = () => {
     )
 }
 
-export const MapButton = ({ name, handleClick,children }) => {
+export const MapButton = ({ name, handleClick, children }) => {
     return (
-        
+
         <button className="border p-2 rounded-xl flex items-center gap-2 cursor-pointer" onClick={handleClick}>
             {children} {name}
         </button>
-    )   
+    )
 }
 
-export const AllMaps = ({handleClick}) =>{
-    return(
+export const AllMaps = ({ handleClick }) => {
+    return (
         <button className='border p-2 rounded-xl cursor-pointer' onClick={handleClick}>
             All Maps
+        </button>
+    )
+}
+
+export const HomeBtn = () => {
+    const navigate = useNavigate()
+    const handleClick = () => {
+        navigate('/')
+    }
+
+    return (
+        <button className='border p-2 rounded-xl cursor-pointer' onClick={handleClick}>
+            Home
         </button>
     )
 }
