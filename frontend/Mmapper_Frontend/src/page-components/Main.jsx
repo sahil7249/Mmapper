@@ -16,13 +16,13 @@ export const Main = () => {
     useEffect(() => {
         socketRef.current = io('http://localhost:8080')
 
-        socketRef.current.on('connect', () => {
-            console.log('Client connected to server')
-        })
+        // socketRef.current.on('connect', () => {
+        //     console.log('Client connected to server')
+        // })
 
-        socketRef.current.on('disconnect', () => {
-            console.log('Client disconnected from server')
-        })
+        // socketRef.current.on('disconnect', () => {
+        //     console.log('Client disconnected from server')
+        // })
 
         socketRef.current.on('pipeline:update', (data) => {
             setCurrentStep(data.step)
@@ -93,6 +93,10 @@ export const Main = () => {
 
     }
 
+    const handleOnClick = () => { 
+        navigate('create')
+    }
+
 
     return (
         <div className="mt-10">
@@ -120,7 +124,7 @@ export const Main = () => {
                         </div>
                         <h2 className="text-2xl font-bold mb-2">Create Map Manually</h2>
                         <p className="text-gray-400 mb-6">Start with a blank mind map and build it yourself</p>
-                        <button className=" text-black border px-6 py-3 rounded-lg transition-colors inline-flex items-center gap-2">
+                        <button className=" text-black border px-6 py-3 rounded-lg transition-colors inline-flex items-center gap-2" onClick={handleOnClick} >
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-plus" aria-hidden="true">
                                 <path d="M5 12h14"></path><path d="M12 5v14"></path>
                             </svg>

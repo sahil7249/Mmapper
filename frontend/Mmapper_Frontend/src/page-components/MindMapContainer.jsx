@@ -1,12 +1,14 @@
 import { MapButton, HomeBtn } from "../components/Buttons"
-import { Download, SaveIcon, Search } from "lucide-react"
+import { Download, SaveIcon, Search, House } from "lucide-react"
 import { fillTemplate } from 'markmap-render';
 import { MindMap } from "./MindMap"
+import { useState } from "react";
 
 export const MindMapContainer = ({ markdown }) => {
-    let instanceData = ''
+    const [instanceData, setInstanceData] = useState(null)
+
     const getData = (data) => {
-        instanceData = data
+        setInstanceData(data)
     }
 
 
@@ -72,7 +74,9 @@ export const MindMapContainer = ({ markdown }) => {
         <div className="w-screen px-10 mt-5">
             <div className="flex justify-between ">
                 <div>
-                    <HomeBtn />
+                    <HomeBtn >
+                        <House />
+                    </HomeBtn>
                 </div>
                 <div className="flex gap-2.5 mb-2.5">
                     <MapButton name={"Fit"} handleClick={handleFit}>
