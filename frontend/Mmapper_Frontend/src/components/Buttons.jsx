@@ -1,4 +1,4 @@
-import { Navigate, useNavigate } from "react-router-dom"
+import { useNavigate } from "react-router-dom"
 
 export const SignUp = () => {
     return (
@@ -33,15 +33,23 @@ export const AllMaps = ({ handleClick }) => {
     )
 }
 
-export const HomeBtn = () => {
+export const HomeBtn = ({children}) => {
     const navigate = useNavigate()
     const handleClick = () => {
         navigate('/')
     }
 
     return (
-        <button className='border p-2 rounded-xl cursor-pointer' onClick={handleClick}>
-            Home
+        <button className='flex items-center gap-0.5 border p-2 rounded-xl cursor-pointer' onClick={handleClick}>
+           {children} Home
+        </button>
+    )
+}
+
+export const CustomBtn = ({handleClick,children,name,isDisabled}) => {
+    return (
+        <button className='flex gap-0.5 items-center cursor-pointer border p-2 rounded-xl' onClick={handleClick}  disabled={isDisabled}>
+            {children} {name}
         </button>
     )
 }
