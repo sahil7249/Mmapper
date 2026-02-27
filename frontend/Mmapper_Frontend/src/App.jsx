@@ -7,6 +7,7 @@ import { CreateMap} from "./page-components/CreateMap"
 import { UpdateMap } from "./page-components/UpdateMap"
 import { createContext, useState, useEffect } from "react"
 import { Routes, Route } from 'react-router-dom'
+import { ToastContainer } from 'react-toastify'
 
 export const UIStateContext = createContext(null)
 
@@ -67,6 +68,7 @@ const App = () => {
             element={<UpdateMap />}
           />
         </Routes>
+        <ToastContainer />
         <Footer />
       </UIStateContext.Provider>
     </>

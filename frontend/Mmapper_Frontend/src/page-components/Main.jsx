@@ -3,6 +3,7 @@ import { useContext, useState, useEffect, useRef } from "react"
 import { ProgressModal } from "../components/ProgressModal"
 import { useNavigate } from "react-router-dom"
 import { io } from 'socket.io-client'
+import { toast } from "react-toastify"
 
 export const Main = () => {
 
@@ -39,6 +40,7 @@ export const Main = () => {
                     markdown_content: markmapData
                 }
                 localStorage.setItem('mindmap', JSON.stringify([mindmapContent]))
+                toast('Map created')
                 console.log("Process Completed")
 
             } catch (error) {
@@ -65,7 +67,8 @@ export const Main = () => {
         const file = e.target.files[0]
 
         if (file.type !== 'application/pdf') {
-            alert('Please upload a pdf file')
+            toast.apply('Please upload a pdf file')
+            // alert('Please upload a pdf file')
             return
         }
 

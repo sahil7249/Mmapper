@@ -3,6 +3,7 @@ import { Download, SaveIcon, Search, House } from "lucide-react"
 import { fillTemplate } from 'markmap-render';
 import { MindMap } from "./MindMap"
 import { useState } from "react";
+import { toast } from "react-toastify";
 
 export const MindMapContainer = ({ markdown }) => {
     const [instanceData, setInstanceData] = useState(null)
@@ -63,7 +64,7 @@ export const MindMapContainer = ({ markdown }) => {
                 console.log("Unable to save the Mindmap: ", dbData.message)
             }
 
-            alert(dbData.message)
+            toast(dbData.message)
 
         } catch (error) {
             console.log("Error while saving the mindmap: ", error.message)
