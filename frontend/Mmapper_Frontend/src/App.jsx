@@ -3,9 +3,10 @@ import { Main } from "./page-components/Main"
 import { Footer } from "./page-components/Footer"
 import { MindMapContainer } from "./page-components/MindMapContainer"
 import { MapList } from "./page-components/MapList"
+import { CreateMap} from "./page-components/CreateMap"
+import { UpdateMap } from "./page-components/UpdateMap"
 import { createContext, useState, useEffect } from "react"
 import { Routes, Route } from 'react-router-dom'
-
 
 export const UIStateContext = createContext(null)
 
@@ -42,7 +43,7 @@ const App = () => {
 
   return (
     <>
-      <UIStateContext.Provider value={{ data: data, setData: setData }}>
+      <UIStateContext.Provider value={{ data: data, setData: setData,setMapData:setMapData }}>
         <Navbar />
         <Routes>
           <Route
@@ -56,6 +57,14 @@ const App = () => {
           <Route
             path="/list"
             element={<MapList maps={mapData} />}
+          />
+          <Route
+            path="/create"
+            element={<CreateMap />}
+          />
+          <Route
+            path="/:id"
+            element={<UpdateMap />}
           />
         </Routes>
         <Footer />
