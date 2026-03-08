@@ -1,13 +1,13 @@
-import { UIStateContext } from "../App"
-import { useContext, useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef } from "react"
 import { ProgressModal } from "../components/ProgressModal"
 import { useNavigate } from "react-router-dom"
 import { io } from 'socket.io-client'
 import { toast } from "react-toastify"
+import axios from "axios"
+import { api } from "../api/axios"
 
 export const Main = () => {
 
-    const { setData } = useContext(UIStateContext)
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [currentStep, setCurrentStep] = useState(0)
     const navigate = useNavigate()
@@ -17,34 +17,21 @@ export const Main = () => {
     useEffect(() => {
         socketRef.current = io('http://localhost:8080')
 
-        // socketRef.current.on('connect', () => {
-        //     console.log('Client connected to server')
-        // })
-
-        // socketRef.current.on('disconnect', () => {
-        //     console.log('Client disconnected from server')
-        // })
-
         socketRef.current.on('pipeline:update', (data) => {
             setCurrentStep(data.step)
         })
 
         socketRef.current.on('pipeline:complete', (data) => {
             try {
-                const markmapData = JSON.parse(data.markmapData)
+                const id = data.id
                 setIsModalOpen(false)
-                setData(markmapData)
-                navigate('mindmap')
-                const mindmapContent = {
-                    title: data.title,
-                    markdown_content: markmapData
-                }
-                localStorage.setItem('mindmap', JSON.stringify([mindmapContent]))
-                toast('Map created')
+                navigate(`mindmap/${id}`)
+                toast.success('Mind map created')
                 console.log("Process Completed")
 
             } catch (error) {
-                console.log("Error : ",error.message)                
+                toast.error(error.message)
+                console.log("Error : ", error.message)
             }
         })
 
@@ -67,8 +54,7 @@ export const Main = () => {
         const file = e.target.files[0]
 
         if (file.type !== 'application/pdf') {
-            toast.apply('Please upload a pdf file')
-            // alert('Please upload a pdf file')
+            toast.error('Please upload a pdf file')
             return
         }
 
@@ -76,28 +62,19 @@ export const Main = () => {
 
         const formdata = new FormData()
         formdata.append('pdf', file)
+        try {
+            const { data } = await api.post('/upload-pdf', formdata)
 
-        const uploadRes = await fetch('http://localhost:8080/api/upload-pdf', {
-            method: 'POST',
-            body: formdata
-        })
+            if (!data.success) {
+                toast.error(data.message)
+                throw new Error(data.message)
+            }
 
-        if (!uploadRes.ok) {
+        } catch (error) {
             setIsModalOpen(false)
-            throw new Error('Upload Failed')
+            toast.error(error.message)
+            throw new Error(error.message)   
         }
-
-        const uploadData = await uploadRes.json()
-
-        if (!uploadData.success) {
-            setIsModalOpen(false)
-            throw new Error(uploadData.message)
-        }
-
-    }
-
-    const handleOnClick = () => { 
-        navigate('create')
     }
 
 
@@ -127,7 +104,7 @@ export const Main = () => {
                         </div>
                         <h2 className="text-2xl font-bold mb-2">Create Map Manually</h2>
                         <p className="text-gray-400 mb-6">Start with a blank mind map and build it yourself</p>
-                        <button className=" text-black border px-6 py-3 rounded-lg transition-colors inline-flex items-center gap-2" onClick={handleOnClick} >
+                        <button className=" text-black border px-6 py-3 rounded-lg transition-colors inline-flex items-center gap-2" onClick={() => navigate('/create')} >
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-plus" aria-hidden="true">
                                 <path d="M5 12h14"></path><path d="M12 5v14"></path>
                             </svg>

@@ -3,11 +3,13 @@ import { Download, SaveIcon, Search, File, Cable, House, Trash } from "lucide-re
 import { useState } from "react";
 import CodeMirror from "@uiw/react-codemirror";
 import { MindMap } from "./MindMap"
+import { toast } from "react-toastify";
+import { api } from "../api/axios";
 
 
 export const CreateMap = () => {
     const [metaData, setMetaData] = useState({
-        title: "markmap",
+        title: "Enter title here",
         colorFreezeLevel: 2
     })
     const [content, setContent] = useState("")
@@ -21,7 +23,7 @@ ${content}
 
 `
     const [mode, setMode] = useState('file')
-    const [instanceData,setInstanceData] = useState(null)
+    const [instanceData, setInstanceData] = useState(null)
 
 
     const getData = (data) => {
@@ -31,42 +33,19 @@ ${content}
 
     const handleSave = async () => {
         try {
-            const dbResponse = await fetch('http://localhost:8080/api/save-map',{
-                method:'POST',
-                headers:{
-                    'Content-Type':'application/json'
-                },
-                body:JSON.stringify({
-                    title:metaData.title,
-                    markdown_content:code
-                })
+            const { data } = await api.post('/save-map', {
+                title: metaData.title,
+                markdown_content: code
             })
 
-            if(!dbResponse.ok) {
-                console.log(dbResponse.message)
+            if(!data) {
+                toast.error("Something went wrong")
             }
-
-            const response = await dbResponse.json()
-            alert('map saved successfully')
-            console.log(response.message)
-
+            toast.success("Map saved successfully")
         } catch (error) {
-            console.log('Error while saving map: ',error.message)
+            toast.error(error.message)
+            throw new Error(error.message)
         }
-    }
-
-    const handleManualMode = () => {
-        setMode('manual')
-    }
-
-    const handleFileMode = () => {
-        setMode('file')
-    }
-
-    const handleClear = () => {
-        console.log("Cleearr")
-        const newContent = ""
-        setContent(newContent)
     }
 
 
@@ -75,22 +54,22 @@ ${content}
             <div className="flex justify-between mb-2.5">
                 <div className="flex items-center gap-5">
                     <div className="flex gap-2.5 border p-1.5 rounded-xl">
-                        <CustomBtn name={"file"} handleClick={handleFileMode} >
+                        <CustomBtn name={"file"} handleClick={() => setMode('file')} >
                             <File />
                         </CustomBtn>
-                        <CustomBtn name={"manual"} handleClick={handleManualMode}  >
+                        <CustomBtn name={"manual"} handleClick={() => setMode('manual')}  >
                             <Cable />
                         </CustomBtn>
                     </div>
                     <div className="border rounded-xl p-2 text-xl">
-                        <input 
-                            type="text" 
-                            value={metaData.title} 
-                            style={{ outline: 'none' }} 
-                            onChange={(e) => 
+                        <input
+                            type="text"
+                            value={metaData.title}
+                            style={{ outline: 'none' }}
+                            onChange={(e) =>
                                 setMetaData(prev => ({
                                     ...prev,
-                                    title:e.target.value
+                                    title: e.target.value
                                 }))
 
                             }
@@ -110,7 +89,7 @@ ${content}
                     <MapButton name={"Save"} handleClick={handleSave}>
                         <SaveIcon />
                     </MapButton>
-                    <CustomBtn name={"clear"} handleClick={handleClear}>
+                    <CustomBtn name={"clear"} handleClick={() => setContent("")}>
                         <Trash />
                     </CustomBtn>
                 </div>

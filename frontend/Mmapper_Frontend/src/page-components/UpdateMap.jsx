@@ -4,139 +4,73 @@ import { useState, useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
 import CodeMirror from "@uiw/react-codemirror";
 import { MindMap } from "./MindMap"
-
-
-const fetchData = async (id) => {
-    try {
-        const dbResponse = await fetch(`http://localhost:8080/api/map/${id}`, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        })
-        if (!dbResponse.ok) {
-            console.log(dbResponse.message)
-        }
-        const mapData = await dbResponse.json()
-        console.log("Map data fetched successfully")
-        return mapData
-    } catch (error) {
-        console.log("Error while fetching map data: ", error)
-    }
-}
-
+import { toast } from "react-toastify";
+import { useMap } from "../hooks/useMap";
+import { getMapById } from "../services/mapService";
+import SpinnerModal from "../components/ui/SpinnerModal";
+import { api } from "../api/axios";
+import { handleDownload, handleFit, handleMouseDown } from "../utils/mapUtils";
 
 export const UpdateMap = () => {
     const { id } = useParams()
     const [leftWidth, setLeftWidth] = useState(30)
     const containerRef = useRef(null)
     const [mode, setMode] = useState('file')
-    const [instanceData,setInstanceData] = useState(null)
+    const [instanceData, setInstanceData] = useState(null)
 
-    const [metaData,setMetaData] = useState({
-        title:"markmap",
-        colorFreezeLevel: 2
-    })
-    const [content,setContent] = useState("")
-    
+
+    const { data, error, loading } = useMap(getMapById, id)
+
+    const [content, setContent] = useState("")
+
     const code = `---
-title: ${metaData.title}
+title: "markmap"
 markmap:
 colorFreezeLevel: 2
 ---
 ${content}
 `
-
-
+    if (error) {
+        toast.error(error)
+    }
 
     useEffect(() => {
-        const fetchMarkdown = async () => {
-            const response = await fetchData(id)
-            
-            if (response) {
-                setContent(response.data.markdown_content)
-            }
+        if (data) {
+            setContent(data)
         }
-        fetchMarkdown()
-    }, [id])
+    }, [data])
 
-    const handleSave = async (id,code) => {
+    const handleUpdate = async (id, updateData) => {
         try {
-            const dbResponse = await fetch(`http://localhost:8080/api/map/${id}/update`, {
-                method: 'POST',
-                headers:{
-                    'Content-Type':'application/json'
-                },
-                body: JSON.stringify({
-                    updateData: code
-                })               
+
+            const { data } = await api.put(`/${id}/update`,{
+                updateData:updateData
             })
-
-            if (!dbResponse.ok) {
-                console.log("Request failed: ",dbResponse.status)
+            console.log(data)
+            if (!data) {
+                toast.error('Something went wrong')
             }
-            const result = await dbResponse.json()
-            console.log(result.message)
-            alert('map updated successfully')
-
+            toast.success("Map updated successfully")
         } catch (error) {
-            console.log('Error: ', error.message)
+            throw new Error(error.message)
         }
     }
 
 
-    
     const getData = (data) => {
         setInstanceData(data)
     }
 
 
-    const handleManualMode = () => {
-        setMode('manual')
-    }
-
-    const handleFileMode = () => {
-        setMode('file')
-    }
-
-    const handleClear = () => {
-        setContent("")
-    }
-
-    const handleMouseDown = (e) => {
-        e.preventDefault();
-
-        const startX = e.clientX;
-        const containerWidth = containerRef.current.offsetWidth;
-        const startWidth = leftWidth;
-
-        const handleMouseMove = (moveEvent) => {
-            const delta = moveEvent.clientX - startX;
-            const newWidth = ((startWidth / 100) * containerWidth + delta) / containerWidth * 100;
-
-            if (newWidth > 20 && newWidth < 80) {
-                setLeftWidth(newWidth);
-            }
-        };
-
-        const handleMouseUp = () => {
-            document.removeEventListener("mousemove", handleMouseMove);
-            document.removeEventListener("mouseup", handleMouseUp);
-        };
-
-        document.addEventListener("mousemove", handleMouseMove);
-        document.addEventListener("mouseup", handleMouseUp);
-    };
-
-
     return (
         <div className="w-screen px-10 mt-5">
+            <SpinnerModal isOpen={loading} />
             <div className="flex justify-between mb-2.5">
                 <div className="flex gap-2.5 border p-1.5 rounded-xl">
-                    <CustomBtn name={"file"} handleClick={handleFileMode} >
+                    <CustomBtn name={"file"} handleClick={() => setMode('file')} >
                         <File />
                     </CustomBtn>
-                    <CustomBtn name={"manual"} handleClick={handleManualMode}  >
+                    <CustomBtn name={"manual"} handleClick={() => setMode('manual')}  >
                         <Cable />
                     </CustomBtn>
                 </div>
@@ -144,16 +78,16 @@ ${content}
                     <HomeBtn >
                         <House />
                     </HomeBtn>
-                    <MapButton name={"Fit"} >
+                    <MapButton name={"Fit"} handleClick={() => handleFit(instanceData)}>
                         <Search />
                     </MapButton>
-                    <MapButton name={"Download"} >
+                    <MapButton name={"Download"} handleClick={() => handleDownload(instanceData,content.title)} >
                         <Download />
                     </MapButton>
-                    <MapButton name={"Save"} handleClick={() => handleSave(id,code)}>
+                    <MapButton name={"Save"} handleClick={() => handleUpdate(id, code)}>
                         <SaveIcon />
                     </MapButton>
-                    <CustomBtn name={"clear"} handleClick={handleClear}>
+                    <CustomBtn name={"clear"} handleClick={() => setContent("")}>
                         <Trash />
                     </CustomBtn>
                 </div>
@@ -164,17 +98,17 @@ ${content}
                         <div style={{ width: `${leftWidth}%` }} className="border  h-full rounded-xl overflow-scroll">
                             <CodeMirror
                                 className="h-full w-full rounded-xl"
-                                value={content}
+                                value={content.markdown_content}
                                 onChange={(value) => setContent(value)}
                             />
                         </div>
                         <div
-                            onMouseDown={handleMouseDown}
+                            onMouseDown={(e) => handleMouseDown(e,containerRef,leftWidth,setLeftWidth)}
                             className="w-2 cursor-col-resize bg-gray-300 hover:bg-gray-400"
                         />
 
                         <div className="border h-full rounded-xl" style={{ width: `${100 - leftWidth}%` }}>
-                            <MindMap markdown={code} handleData={getData} />
+                            <MindMap markdown={content.markdown_content} handleData={getData} />
                         </div>
 
                     </>

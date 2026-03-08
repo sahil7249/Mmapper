@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom'
+import { useEffect } from 'react'
 import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from '@headlessui/react'
 
 export default function DeleteModal({ open, setOpen, id,onDeleteSuccess }) {
@@ -25,6 +26,10 @@ export default function DeleteModal({ open, setOpen, id,onDeleteSuccess }) {
             setOpen(false)
         }
     }
+
+    // useEffect(()=>{
+        
+    // },[])
 
     return (
         <>
