@@ -16,7 +16,7 @@ const io = initSocket(server)
 app.use(express.json())
 app.use(cors())
 
-app.use('/api', processRouter)
+app.use('/api/map', processRouter)
 
 io.on('connection', (socket) => {
     console.log('Client Connected :', socket.id)

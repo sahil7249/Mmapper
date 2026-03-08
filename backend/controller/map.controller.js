@@ -14,9 +14,8 @@ const saveMindMapToDB = async (req, res) => {
         markdown_content
     })
 
-    const createdMap = await Map.findById(map._id)
 
-    if (!createdMap) {
+    if (!map) {
         return res.status(500).json({
             message: "Something went wrong while creating map"
         })

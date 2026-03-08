@@ -2,6 +2,7 @@ import { execFile } from 'child_process'
 import util from 'util'
 import callLama from '../utils/callLama.js'
 import convertJsonToMarkmap from '../utils/convertJsonToMarkmap.js'
+import { Map } from '../database/map.model.js'
 import fs from 'fs'
 
 const execPromise = util.promisify(execFile)
@@ -37,8 +38,16 @@ export const runPdfPipeline = async ({pdfPath,emit}) => {
         const {markmap,title} = convertJsonToMarkmap(JSON.parse(jsonContent))
     
         console.log("Converting markmap into mindmap")
+        const map = await Map.create({
+            title,
+            markdown_content:markmap
+        })
+
+        if(!map) {
+            console.log('Something went wrong while creating map:')
+        }
         
-        emit('pipeline:complete',{succes:true,markmapData:JSON.stringify(markmap),title:title})
+        emit('pipeline:complete',{succes:true,id:map._id})
     
         await fs.promises.unlink(pdfPath).catch(() => { })
         

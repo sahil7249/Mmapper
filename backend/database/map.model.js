@@ -5,7 +5,6 @@ const { Schema } = mongoose
 const MapSchema = new Schema({
     title: {
         type: String,
-        unique: true,
         lowercase: true,
         required: true
     },
