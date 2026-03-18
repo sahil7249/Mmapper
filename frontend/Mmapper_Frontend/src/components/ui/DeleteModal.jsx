@@ -1,35 +1,7 @@
-import { useNavigate } from 'react-router-dom'
-import { useEffect } from 'react'
 import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from '@headlessui/react'
 
-export default function DeleteModal({ open, setOpen, id,onDeleteSuccess }) {
-    const navigate = useNavigate()
+export default function DeleteModal({ open, setOpen,onConfirm }) {
     if (!open) return null
-
-    const handleDelete = async () => {
-        try {
-            const dbResponse = await fetch(`http://localhost:8080/api/map/${id}/delete`, {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            })
-
-            if (!dbResponse.ok) {
-                console.log(dbResponse.message)
-            }
-            console.log("Map data deleted successfully")
-            setOpen(false)
-            onDeleteSuccess(id)
-        } catch (error) {
-            console.log("Error while deleting map: ",error.message)
-            setOpen(false)
-        }
-    }
-
-    // useEffect(()=>{
-        
-    // },[])
 
     return (
         <>
@@ -50,9 +22,6 @@ export default function DeleteModal({ open, setOpen, id,onDeleteSuccess }) {
                                     >
                                         <div className="bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                                             <div className="sm:flex sm:items-start">
-                                                {/* <div className="mx-auto flex size-12 shrink-0 items-center justify-center rounded-full bg-red-500/10 sm:mx-0 sm:size-10">
-                                                    <ExclamationTriangleIcon aria-hidden="true" className="size-6 text-red-400" />
-                                                </div> */}
                                                 <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
                                                     <DialogTitle as="h3" className="text-base font-semibold text-white">
                                                         Delete Map
@@ -68,7 +37,7 @@ export default function DeleteModal({ open, setOpen, id,onDeleteSuccess }) {
                                         <div className="bg-gray-700/25 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
                                             <button
                                                 type="button"
-                                                onClick={handleDelete}
+                                                onClick={onConfirm}
                                                 className="inline-flex w-full justify-center rounded-md bg-red-500 px-3 py-2 text-sm font-semibold text-white hover:bg-red-400 sm:ml-3 sm:w-auto"
                                             >
                                                 Delete

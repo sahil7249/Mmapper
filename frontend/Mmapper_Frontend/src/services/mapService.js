@@ -32,6 +32,15 @@ export const saveMap = (mapData) => {
     }
 }
 
-export const deleteMap = (id) => api.delete(`/${id}/delete`)
+export const deleteMap = (id) => {
+    try {
+        const { data } = api.delete(`/${id}/delete`)
+        console.log("Map deleted successfully")
+        return data
+    } catch (error) {
+        console.log("Error while deleting data: ",error.message)
+    }
+
+}
 
 export const updateMap = (updateData) => api.put(`/${id}/update`, updateData)

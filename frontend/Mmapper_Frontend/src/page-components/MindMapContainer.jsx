@@ -23,7 +23,6 @@ export const MindMapContainer =  () => {
 
     useEffect(() => {
         if(data) {
-            console.log(data)
             setMarkdownContent(data)
         }
     },[data])

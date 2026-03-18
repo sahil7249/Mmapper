@@ -1,9 +1,10 @@
 import { FileText } from "lucide-react"
 import { useMap } from "../hooks/useMap"
 import SpinnerModal from "../components/ui/SpinnerModal"
-import { getAllMaps } from "../services/mapService"
+import { deleteMap, getAllMaps } from "../services/mapService"
 import { toast } from "react-toastify"
 import { MapElem } from "./MapElem"
+import { useEffect, useState } from "react"
 
 const NoMindMapFound = () => {
     return (
@@ -17,24 +18,36 @@ const NoMindMapFound = () => {
 
 export const MapList = () => {
     const { data, error, loading } = useMap(getAllMaps)
+    const [mapList,setMapList] = useState([])
+
+    useEffect(()=>{
+        if(data) {
+            setMapList(data)
+        }
+    },[data])
 
     if (error) {
         toast.error(error)
+    }
+
+    const handleDelete = async (id) => {
+        await deleteMap(id)
+        setMapList(prev => prev.filter(m => m._id !== id))
     }
 
     return (
         <>
             <SpinnerModal isOpen={loading} />
             <div className="mt-5 px-5">
-                {data?.length > 0 ?
+                {mapList?.length > 0 ?
                     (
                         <>
                             <h1 className="ml-8 mt-5 text-2xl">
                                 Map List
                             </h1>
 
-                            {data.map(map => (
-                                <MapElem title={map.title} key={map._id} id={map._id} />
+                            {mapList.map(map => (
+                                <MapElem title={map.title} key={map._id} id={map._id} onDelete={handleDelete}/>
                             ))}
                         </>
                     ) : (

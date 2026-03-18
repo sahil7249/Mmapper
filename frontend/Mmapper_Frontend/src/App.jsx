@@ -12,12 +12,9 @@ import { ToastContainer } from 'react-toastify'
 export const UIStateContext = createContext(null)
 
 const App = () => {
-  const [data, setData] = useState("")
-  const [mapData, setMapData] = useState([])
 
   return (
     <>
-      <UIStateContext.Provider value={{ data: data, setData: setData, setMapData: setMapData }}>
         <Navbar />
         <Routes>
           <Route
@@ -43,7 +40,6 @@ const App = () => {
         </Routes>
         <ToastContainer />
         <Footer />
-      </UIStateContext.Provider>
     </>
   )
 }

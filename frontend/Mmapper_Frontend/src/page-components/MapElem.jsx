@@ -1,12 +1,10 @@
-import { useContext, useState } from "react"
+import {  useState } from "react"
 import { useNavigate } from "react-router-dom"
 import DeleteModal from "../components/ui/DeleteModal"
 import mapLogo from '../assets/mindmap.png'
 import { CirclePlus, Trash } from "lucide-react"
-import { UIStateContext } from "../App"
 
-export const MapElem = ({ title, id }) => {
-    const { setMapData } = useContext(UIStateContext)
+export const MapElem = ({ title, id,onDelete }) => {
     const [open, setOpen] = useState(false)
 
     const navigate = useNavigate()
@@ -27,10 +25,9 @@ export const MapElem = ({ title, id }) => {
                     <Trash onClick={() => setOpen(true)} />
                 </div>
             </div>
-            <DeleteModal open={open} setOpen={setOpen} id={id} onDeleteSuccess={(id) => {
-                setMapData(prev => {
-                    prev.filter(item => item._id !== id)
-                })
+            <DeleteModal open={open} setOpen={setOpen} id={id} onConfirm={() => { 
+                onDelete(id)
+                setOpen(false)
             }}/>
         </>
     )
