@@ -1,4 +1,4 @@
-const query = async (data) => {
+export const query = async (data) => {
     const response = await fetch(
         `${process.env.MODEL_URL}`,
         {
