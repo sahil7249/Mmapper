@@ -8,34 +8,91 @@ import { useMap } from "../hooks/useMap";
 import { getMapById } from "../services/mapService";
 import SpinnerModal from "../components/ui/SpinnerModal";
 import { handleDownload, handleFit } from "../utils/mapUtils";
+import { ReactTyped } from 'react-typed'
+import { api } from "../api/axios";
 
 
 
 export const MindMapContainer = () => {
-    const [markdownContent, setMarkdownContent] = useState({})
+    const [markdownContent, setMarkdownContent] = useState({
+        title: "",
+        markdown_content: ""
+    })
     const [instanceData, setInstanceData] = useState(null)
+    const [streamingText,setStreamingText] = useState()
+    const [question, setQuestion] = useState("")
     const { id } = useParams()
-
-    const { data, error, loading } =  useMap(getMapById,id)
+    const [message, setMessage] = useState(() => {
+        try {
+            const saved = localStorage.getItem(`${id}`)
+            return saved  ? JSON.parse(saved) : []
+        } catch (error) {
+            return []
+        }
+    })
+    console.log(message)
+    const { data, error, loading } = useMap(getMapById, id)
     if (error) {
         toast.error(error)
     }
 
     useEffect(() => {
-        if(data) {
+        if (data) {
             setMarkdownContent(data)
         }
-    },[data])
+    }, [data])
 
     const getData = (value) => {
         setInstanceData(value)
         return
     }
 
+    const handleChange = (e) => {
+        setQuestion(e.target.value)
+    }
+
+
+    const handleClick = async () => {
+        try {
+            const { data } = await api.post('/bot/:id', {
+                context: markdownContent.markdown_content,
+                question: question
+            })
+            if (!data) {
+                console.log("Error while fetching response from chatbot")
+            }
+
+            const userQuestion = question
+            setQuestion("")
+            setMessage(prev => [...prev, { type: 'question', text: userQuestion }])
+
+            await new Promise(res => setTimeout(res, 2000))
+
+            let info = JSON.parse(data.data)
+            let para = info['para'] + "<br> <br>"
+            for (let point of info['points']) {
+                para += ' - ' + point + "<br>"
+            }
+            setStreamingText(para)
+            setTimeout(() => {
+                setMessage(prev => [...prev, { type: 'response', text: para }])
+                setStreamingText(null)
+            },15000)
+        } catch (error) {
+            toast.error(error.message)
+        }
+    }
+
+    useEffect(() => {
+        if(id){
+            localStorage.setItem(`${id}`,JSON.stringify(message))
+        }
+
+    }, [message,id])
 
     return (
         <div className="w-screen px-10 mt-5 flex gap-0.5 items-center">
-            <SpinnerModal isOpen={loading}/>
+            <SpinnerModal isOpen={loading} />
             <div className="w-3/4">
                 <div className="flex justify-between">
                     <div>
@@ -63,21 +120,49 @@ export const MindMapContainer = () => {
                     <div className="bg-gray-200 p-3 rounded-xl max-w-[80%]">
                         Hello! How can I help you?
                     </div>
+                    {message.map((msg, index) => (
 
-                    <div className="bg-blue-500 text-white p-3 rounded-xl max-w-[80%] ml-auto">
-                        Give me map details
-                    </div>
+                        <div 
+                            key={index}
+                            className={
+                                msg.type === 'question'
+                                ? "bg-blue-500 text-white p-3 rounded-xl max-w-[80%] ml-auto"
+                                : "bg-gray-200 p-3 rounded-xl max-w-[80%]"
+                            }
+                        >
+                            <div  
+                                dangerouslySetInnerHTML={
+                                    {__html:msg.text}
+                                }
+                            />
+                        </div>
+                    ))}
+                    {streamingText && 
+                        <div className="bg-gray-200 p-3 rounded-xl max-w-[80%]">
+                            <ReactTyped 
+                                strings={[streamingText]}
+                                typeSpeed={20}
+                                showCursor={false}
+                            />
+                        </div>
+                    }
+
 
                 </div>
 
                 <div className="border-t p-3 flex items-center gap-2">
                     <textarea
+                        value={question}
                         className="flex-1 border rounded-xl p-2 resize-none focus:outline-none"
                         rows={1}
                         placeholder="Type a message..."
-                    />
+                        onChange={handleChange}
+                    > </textarea>
 
-                    <button className="bg-blue-500 text-white p-2 rounded-full">
+                    <button className={` text-white p-2 rounded-full  transition-all duration-200 ${question.trim()
+                        ? "bg-blue-500 hover:bg-blue-600 cursor-pointer"
+                        : "bg-gray-300 cursor-not-allowed"
+                        }`} onClick={handleClick}>
                         <MoveUp />
                     </button>
                 </div>

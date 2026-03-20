@@ -3,7 +3,6 @@ import { ProgressModal } from "../components/ProgressModal"
 import { useNavigate } from "react-router-dom"
 import { io } from 'socket.io-client'
 import { toast } from "react-toastify"
-import axios from "axios"
 import { api } from "../api/axios"
 
 export const Main = () => {
