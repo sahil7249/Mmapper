@@ -16,7 +16,7 @@ export const runPdfPipeline = async ({pdfPath,emit}) => {
         console.log("Extracting text from pdf....")
         emit('pipeline:update',{step:0,message:'Extracting text'})
         
-        const { stdout: extractedText, stderr } = await execPromise('python3', ['./utils/extract_text.py', pdfPath])
+        const { stdout: extractedText, stderr } = await execPromise('python', ['./utils/extract_text.py', pdfPath])
     
         if (stderr) {
             console.log('Error while extracting text from PDF :', stderr)
