@@ -5,7 +5,8 @@ import http from 'http'
 import processRouter from './router/process.router.js'
 import connectToDB from './database/dbConnection.js'
 import { initSocket } from './utils/socket.js'
-
+import { setServers } from 'node:dns'
+setServers(["1.1.1.1", "8.8.8.8"]);
 dotenv.config({ path: '.env' })
 
 const app = express()
