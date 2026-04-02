@@ -25,7 +25,11 @@ export const MindMap = ({ markdown,handleData }) => {
             });
         }
 
-        mmRef.current = Markmap.create(svgRef.current, undefined, root);
+        mmRef.current = Markmap.create(svgRef.current, {
+                autoFit: true, duration: 750,
+                maxWidth: 220, nodeMinHeight: 20,
+                spacingVertical: 8, spacingHorizontal: 64, paddingX: 10
+        }, root);
         handleData({root,features,assets:{styles,scripts},markapInstance:mmRef.current})
         return () => {
             if(svgRef.current) {
