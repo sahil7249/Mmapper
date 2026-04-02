@@ -30,7 +30,6 @@ export const MindMapContainer = () => {
             return []
         }
     })
-    console.log(message)
     const { data, error, loading } = useMap(getMapById, id)
     if (error) {
         toast.error(error)
@@ -91,16 +90,16 @@ export const MindMapContainer = () => {
     }, [message,id])
 
     return (
-        <div className="w-screen px-10 mt-5 flex gap-0.5 items-center">
+        <div className="w-screen h-screen px-6 py-4 mt-5 flex gap-1 items-center overflow-hidden">
             <SpinnerModal isOpen={loading} />
-            <div className="w-3/4">
-                <div className="flex justify-between">
+            <div className="w-3/4 flex flex-col h-full">
+                <div className="flex justify-between mb-2">
                     <div>
                         <HomeBtn >
                             <House />
                         </HomeBtn>
                     </div>
-                    <div className="flex gap-2.5 mb-2.5">
+                    <div className="flex gap-2.5 ">
                         <MapButton name={"Fit"} handleClick={() => handleFit(instanceData)}>
                             <Search />
                         </MapButton>
@@ -109,15 +108,15 @@ export const MindMapContainer = () => {
                         </MapButton>
                     </div>
                 </div>
-                <div className="border h-180 rounded-2xl">
+                <div className="border flex-1 rounded-2xl overflow-hidden">
                     <MindMap markdown={markdownContent.markdown_content} handleData={getData} />
                 </div>
             </div>
-            <div className="w-1/4 h-180 border rounded-2xl mt-13 flex flex-col">
+            <div className="w-1/4 h-full border rounded-2xl flex flex-col">
 
                 <div className="flex-1 overflow-y-auto p-3 space-y-3">
 
-                    <div className="bg-gray-200 p-3 rounded-xl max-w-[80%]">
+                    <div className="bg-gray-200 border-t p-3 rounded-xl flex gap-2">
                         Hello! How can I help you?
                     </div>
                     {message.map((msg, index) => (
