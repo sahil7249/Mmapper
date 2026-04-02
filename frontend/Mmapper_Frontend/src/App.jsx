@@ -14,7 +14,7 @@ export const UIStateContext = createContext(null)
 const App = () => {
 
   return (
-    <>
+    <div className="h-screen flex flex-col overflow-hidden">
         <Navbar />
         <Routes>
           <Route
@@ -39,8 +39,7 @@ const App = () => {
           />
         </Routes>
         <ToastContainer />
-        <Footer />
-    </>
+    </div>
   )
 }
 
