@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom"
 import { io } from 'socket.io-client'
 import { toast } from "react-toastify"
 import { api } from "../api/axios"
+import { Footer } from "./Footer"
 
 export const Main = () => {
 
@@ -78,6 +79,7 @@ export const Main = () => {
 
 
     return (
+        <>
         <div className="mt-10">
             <div className="w-screen text-center">
                 <span className="border p-5 rounded-xl text-2xl">Convert PDF to Mind Map or create one</span>
@@ -114,5 +116,7 @@ export const Main = () => {
                 <ProgressModal isModalOpen={isModalOpen} currentStep={currentStep} />
             </div>
         </div>
+        <Footer />
+        </>
     )
 }
