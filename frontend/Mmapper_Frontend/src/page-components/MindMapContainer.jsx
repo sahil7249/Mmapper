@@ -20,6 +20,7 @@ export const MindMapContainer = () => {
     })
     const [instanceData, setInstanceData] = useState(null)
     const [streamingText,setStreamingText] = useState()
+    const [displayed,setDisplayed] = useState("")
     const [question, setQuestion] = useState("")
     const { id } = useParams()
     const [message, setMessage] = useState(() => {
@@ -46,10 +47,9 @@ export const MindMapContainer = () => {
         return
     }
 
-    const handleChange = (e) => {
-        setQuestion(e.target.value)
+    const splitHtml = (html) => {
+        return html.match(/<[^>]+>|[^<]+/g) || []
     }
-
 
     const handleClick = async () => {
         try {
@@ -65,22 +65,29 @@ export const MindMapContainer = () => {
             setQuestion("")
             setMessage(prev => [...prev, { type: 'question', text: userQuestion }])
 
-            await new Promise(res => setTimeout(res, 2000))
+            let info = data.data
+            setStreamingText(info)
+            setMessage(prev => [...prev, { type: 'response', text: info }])
 
-            let info = JSON.parse(data.data)
-            let para = info['para'] + "<br> <br>"
-            for (let point of info['points']) {
-                para += ' - ' + point + "<br>"
-            }
-            setStreamingText(para)
-            setTimeout(() => {
-                setMessage(prev => [...prev, { type: 'response', text: para }])
-                setStreamingText(null)
-            },15000)
         } catch (error) {
             toast.error(error.message)
         }
     }
+
+    useEffect(() => {
+        if(!streamingText) return 
+        const tokens = splitHtml(streamingText)
+        let i = 0
+
+        const interval = setInterval(() => {
+            setDisplayed(tokens.slice(0, i).join(""))
+            i++
+            if (i > tokens.length) clearInterval(interval)
+        }, 30)
+
+        return () => clearInterval(interval)
+
+    }, [streamingText])
 
     useEffect(() => {
         if(id){
@@ -129,21 +136,21 @@ export const MindMapContainer = () => {
                                 : "bg-gray-200 p-3 rounded-xl max-w-[80%]"
                             }
                         >
-                            <div  
+                            {/* <div  
                                 dangerouslySetInnerHTML={
                                     {__html:msg.text}
                                 }
-                            />
+                            /> */}
+                            {msg.type === 'question'
+                                ? msg.text
+                                : <div  className="chat-html" dangerouslySetInnerHTML={{__html:msg.text}}  />
+                            }
                         </div>
                     ))}
                     {streamingText && 
-                        <div className="bg-gray-200 p-3 rounded-xl max-w-[80%]">
-                            <ReactTyped 
-                                strings={[streamingText]}
-                                typeSpeed={20}
-                                showCursor={false}
-                            />
-                        </div>
+                        <div className="bg-gray-200 p-3 rounded-xl max-w-[80%]" 
+                            dangerouslySetInnerHTML={{__html:displayed}} 
+                        />
                     }
 
 
@@ -155,7 +162,7 @@ export const MindMapContainer = () => {
                         className="flex-1 border rounded-xl p-2 resize-none focus:outline-none"
                         rows={1}
                         placeholder="Type a message..."
-                        onChange={handleChange}
+                        onChange={(e) => setQuestion(e.target.value)}
                     > </textarea>
 
                     <button className={` text-white p-2 rounded-full  transition-all duration-200 ${question.trim()
