@@ -53,6 +53,9 @@ export const MindMapContainer = () => {
 
     const handleClick = async () => {
         try {
+            const userQuestion = question
+            setQuestion("")
+            setMessage(prev => [...prev, { type: 'question', text: userQuestion }])
             const { data } = await api.post('/bot/:id', {
                 context: markdownContent.markdown_content,
                 question: question
@@ -61,14 +64,8 @@ export const MindMapContainer = () => {
                 console.log("Error while fetching response from chatbot")
             }
 
-            const userQuestion = question
-            setQuestion("")
-            setMessage(prev => [...prev, { type: 'question', text: userQuestion }])
-
-            let info = data.data
-            setStreamingText(info)
-            setMessage(prev => [...prev, { type: 'response', text: info }])
-
+            setStreamingText(data.data)
+            
         } catch (error) {
             toast.error(error.message)
         }
@@ -78,12 +75,16 @@ export const MindMapContainer = () => {
         if(!streamingText) return 
         const tokens = splitHtml(streamingText)
         let i = 0
-
+        
         const interval = setInterval(() => {
             setDisplayed(tokens.slice(0, i).join(""))
             i++
-            if (i > tokens.length) clearInterval(interval)
-        }, 30)
+            if (i >= tokens.length) {
+                clearInterval(interval)
+                setMessage(prev => [...prev, { type: 'response', text: streamingText }])
+                setStreamingText(null)
+            }
+        }, 80)
 
         return () => clearInterval(interval)
 
