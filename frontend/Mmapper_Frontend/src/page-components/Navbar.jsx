@@ -16,9 +16,6 @@ const Navbar = () => {
             </div>
             <div className='flex items-center gap-2'>
                <Link to='/list'><AllMaps /> </Link> 
-                {isUserSignedUp ? <LogIn /> : <SignUp />}
-                <ModeToggle />
-                <ProfileDropDown />
             </div>
         </div>
     )

@@ -8,7 +8,6 @@ import { useMap } from "../hooks/useMap";
 import { getMapById } from "../services/mapService";
 import SpinnerModal from "../components/ui/SpinnerModal";
 import { handleDownload, handleFit } from "../utils/mapUtils";
-import { ReactTyped } from 'react-typed'
 import { api } from "../api/axios";
 
 
