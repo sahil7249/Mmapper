@@ -1,70 +1,95 @@
-export const query = async (data) => {
-    const response = await fetch(
-        `${process.env.MODEL_URL}`,
-        {
-            headers: {
-                Authorization: `Bearer ${process.env.SECRET_KEY}`,
-                "Content-Type": "application/json"
-            },
-            method: "POST",
-            body: JSON.stringify(data)
-        }
-    )
-
-    const result = await response.json()
-    return result
-}
-
-const callLama = async (extractedText) => {
+const callGemini = async (extractedText) => {
     try {
-        const response = query({
-            messages: [
+        const prompt = `
+You are a JSON generator.
 
-                {
-                    "role": "system",
-                    "content": `
-                    You are a JSON generator. You must return ONLY valid JSON, no explanations, no markdown formatting, no additional text.
+Return ONLY valid JSON.
 
-                    Task: Convert this text into a hierarchical mind map structure.
+Task:
+Convert the following document into a hierarchical mind map.
 
-                    Required JSON format:
-                    {
-                    "title": "Main document topic",
-                    "nodes": [
-                        {
-                        "text": "Main Topic 1",
-                        "children": [
-                            {"text": "Subtopic 1.1", "children": []},
-                            {"text": "Subtopic 1.2", "children": []}
-                        ]
-                        }
-                    ]
-                    }
+JSON format:
 
-                    Rules:
-                    - Return ONLY the JSON object
-                    - No markdown code blocks
-                    - No explanations before or after
-                    - Maximum 3 levels of depth
-                    - Each node must have "text" and "children" fields
-
-                    Text to analyze:
-                    ${extractedText}
-
-                    JSON output:`
-                }
-            ],
-            model: "meta-llama/Llama-3.1-8B-Instruct:novita",
-            temperature: 0.0
-        }).then((response) => {
-            return response
-        });
-
-        return response;
-    } catch (error) {
-        return error.message
+{
+  "title": "Document Title",
+  "nodes": [
+    {
+      "text": "Main Topic",
+      "details": [
+        "Important point 1",
+        "Important point 2",
+        "Important point 3"
+      ],
+      "children": [
+        {
+          "text": "Subtopic",
+          "details": [
+            "Important point",
+            "Important point"
+          ],
+          "children": []
+        }
+      ]
     }
+  ]
 }
 
+Rules:
+- Analyze the entire document.
+- Do not skip important information.
+- Every major paragraph should belong to a topic.
+- Keep "text" short (3-8 words).
+- Store explanations as bullet points inside "details".
+- Preserve the document hierarchy.
+- Ignore diagrams, flowcharts, images, tables, ASCII art, equations and decorative formatting.
+- Do not invent information.
+- Do not repeat information.
+- Return ONLY valid JSON.
 
-export default callLama;
+Document:
+
+${extractedText}
+`;
+
+        const response = await fetch(
+            `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    contents: [
+                        {
+                            parts: [
+                                {
+                                    text: prompt
+                                }
+                            ]
+                        }
+                    ],
+                    generationConfig: {
+                        temperature: 0.2,
+                        responseMimeType: "application/json",
+                        topP:0.95
+                    }
+                })
+            }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.error?.message || "Gemini API Error");
+        }
+
+        return JSON.parse(data.candidates[0].content.parts[0].text);
+
+    } catch (error) {
+        return {
+            error: error.message
+        };
+    }
+};
+
+export default callGemini;

@@ -1,9 +1,9 @@
 import { execFile } from 'child_process'
 import util from 'util'
-import callLama from '../utils/callLama.js'
 import convertJsonToMarkmap from '../utils/convertJsonToMarkmap.js'
 import { Map } from '../database/map.model.js'
 import fs from 'fs'
+import callGemini from '../utils/callLama.js'
 
 const execPromise = util.promisify(execFile)
 
@@ -28,14 +28,15 @@ export const runPdfPipeline = async ({pdfPath,emit}) => {
     
         console.log("Calling LLM.....")
         emit('pipeline:update',{step:1,message:"calling LLM"})
-        const llmResponse = await callLama(extractedText)
+        const llmResponse = await callGemini(extractedText)
     
-        console.log("Extracting json from llm response.....")
-        let jsonContent = llmResponse?.choices[0].message.content
+        // console.log("Extracting json from llm response.....")
+        // let jsonContent = llmResponse?.choices[0].message.content
     
-        console.log("Converting json into markmap format....")
-        emit('pipeline:update',{step:2,message:"Converting text into markdown"})
-        const {markmap,title} = convertJsonToMarkmap(JSON.parse(jsonContent))
+        // console.log("Converting json into markmap format....")
+        // emit('pipeline:update',{step:2,message:"Converting text into markdown"})
+        // const {markmap,title} = convertJsonToMarkmap(JSON.parse(jsonContent))
+        const {markmap,title} = convertJsonToMarkmap(llmResponse)
     
         console.log("Converting markmap into mindmap")
         const map = await Map.create({

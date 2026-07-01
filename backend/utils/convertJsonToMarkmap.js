@@ -13,20 +13,27 @@ colorFreezeLevel: 2
 }
     // Recursive function for nodes
     const processNode = (node, level = 1) => {
-        let result = ''
+    let result = "";
 
-        const heading = '#'.repeat(level)
-        const text = node.name || node.text || 'Untitled'
-        result += `${heading} ${text}\n`
+    const heading = "#".repeat(level);
+    const text = node.name || node.text || "Untitled";
 
-        if (node.children && Array.isArray(node.children) && node.children.length > 0) {
-            node.children.forEach(element => {
-                result += processNode(element, level + 1)
-            });
-        }
+    result += `${heading} ${text}\n`;
 
-        return result
+    if (node.details && Array.isArray(node.details)) {
+        node.details.forEach(detail => {
+            result += `- ${detail}\n`;
+        });
     }
+
+    if (node.children && Array.isArray(node.children)) {
+        node.children.forEach(child => {
+            result += processNode(child, level + 1);
+        });
+    }
+
+    return result;
+};
 
     // For the top level nodes 
     if (jsonContent.nodes && Array.isArray(jsonContent.nodes)) {
