@@ -1,32 +1,19 @@
 import { getIO } from '../utils/socket.js'
 import { runPdfPipeline } from '../utils/runPdfPipeline.js'
+import { ApiError } from '../utils/ApiError.js'
+import { uploadAndProcessPdfService } from '../services/uploadAndProcessPdf.service.js'
 
 export const uploadAndProcessPdf = (req, res) => {
     try {
-        if (!req.file) {
-            res.status(400).json({ message: "No PDF file is uploaded" })
-        }
-
-        const pdfPath = req.file.path
-        console.log("PDF File uploaded successfully")
-
-        const io = getIO()
-
-        runPdfPipeline({
-            pdfPath:pdfPath,
-            emit : (event,payload) => io.emit(event,payload)
-        })
+        const message = uploadAndProcessPdfService(req.file)
 
         res.json({
             success: true,
-            message: "Process started"
+            message: message
         })
 
     } catch (error) {
         console.log("ERROR : while uploading file", error)
-        res.json({
-            success: false,
-            message: "Error occured while pdf uploading"
-        })
+        throw new ApiError(error.message)
     }
 }

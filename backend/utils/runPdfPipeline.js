@@ -4,6 +4,7 @@ import convertJsonToMarkmap from '../utils/convertJsonToMarkmap.js'
 import { Map } from '../database/map.model.js'
 import fs from 'fs'
 import callGemini from '../utils/callLama.js'
+import { ApiError } from './ApiError.js'
 
 const execPromise = util.promisify(execFile)
 
@@ -19,23 +20,17 @@ export const runPdfPipeline = async ({pdfPath,emit}) => {
         const { stdout: extractedText, stderr } = await execPromise('python', ['./utils/extract_text.py', pdfPath])
     
         if (stderr) {
-            console.log('Error while extracting text from PDF :', stderr)
+            throw new ApiError("Error while extracting text from PDF :',")
         }
     
         if (!extractedText || extractedText.trim().length === 0) {
-            console.log("No text extracted from pdf")
+            throw new ApiError("No text extracted from pdf")
         }
     
         console.log("Calling LLM.....")
         emit('pipeline:update',{step:1,message:"calling LLM"})
         const llmResponse = await callGemini(extractedText)
     
-        // console.log("Extracting json from llm response.....")
-        // let jsonContent = llmResponse?.choices[0].message.content
-    
-        // console.log("Converting json into markmap format....")
-        // emit('pipeline:update',{step:2,message:"Converting text into markdown"})
-        // const {markmap,title} = convertJsonToMarkmap(JSON.parse(jsonContent))
         const {markmap,title} = convertJsonToMarkmap(llmResponse)
     
         console.log("Converting markmap into mindmap")
@@ -45,7 +40,7 @@ export const runPdfPipeline = async ({pdfPath,emit}) => {
         })
 
         if(!map) {
-            console.log('Something went wrong while creating map:')
+            throw new ApiError("Map creation failed")
         }
         
         emit('pipeline:complete',{succes:true,id:map._id})
@@ -57,5 +52,6 @@ export const runPdfPipeline = async ({pdfPath,emit}) => {
     } catch (error) {
         console.log("Error while processing: ",error.message)
         await fs.promises.unlink(pdfPath).catch(() => { })
+        throw new ApiError(error.message)
     }
 }

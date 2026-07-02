@@ -6,6 +6,7 @@ import processRouter from './router/process.router.js'
 import connectToDB from './database/dbConnection.js'
 import { initSocket } from './utils/socket.js'
 import { setServers } from 'node:dns'
+import { errorMiddleware } from './midddleware/error.middleware.js'
 setServers(["1.1.1.1", "8.8.8.8"]);
 dotenv.config({ path: '.env' })
 
@@ -18,6 +19,7 @@ app.use(express.json())
 app.use(cors())
 
 app.use('/api/map', processRouter)
+app.use(errorMiddleware)
 
 io.on('connection', (socket) => {
     console.log('Client Connected :', socket.id)
