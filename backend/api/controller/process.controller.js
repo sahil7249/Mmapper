@@ -1,7 +1,7 @@
-import { getIO } from '../utils/socket.js'
-import { runPdfPipeline } from '../utils/runPdfPipeline.js'
-import { ApiError } from '../utils/ApiError.js'
-import { uploadAndProcessPdfService } from '../services/uploadAndProcessPdf.service.js'
+import { getIO } from '../../utils/socket.js'
+import { runPdfPipeline } from '../../utils/runPdfPipeline.js'
+import { ApiError } from '../../utils/ApiError.js'
+import { uploadAndProcessPdfService } from '../../services/uploadAndProcessPdf.service.js'
 
 export const uploadAndProcessPdf = (req, res) => {
     try {

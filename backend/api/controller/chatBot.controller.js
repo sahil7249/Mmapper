@@ -1,4 +1,5 @@
-import { chatBot } from "../utils/chatBot.js"
+import { chatBot } from "../../utils/chatBot.js"
+
 
 export const getResponseFromBot =  async (req,res) => {
     const { context,question } = req?.body

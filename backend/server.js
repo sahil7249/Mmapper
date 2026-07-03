@@ -2,11 +2,11 @@ import express from 'express'
 import dotenv from 'dotenv'
 import cors from 'cors'
 import http from 'http'
-import processRouter from './router/process.router.js'
 import connectToDB from './database/dbConnection.js'
 import { initSocket } from './utils/socket.js'
 import { setServers } from 'node:dns'
-import { errorMiddleware } from './midddleware/error.middleware.js'
+import { errorMiddleware } from './api/midddleware/error.middleware.js'
+import processRouter from './api/router/process.router.js'
 setServers(["1.1.1.1", "8.8.8.8"]);
 dotenv.config({ path: '.env' })
 
