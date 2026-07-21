@@ -59,3 +59,22 @@ export const loginUser = async(username,password) => {
 
     return data
 }
+
+export const updateUserPassword = async (id,oldPassword,newPassword) => {
+    const user = await User.findById(id)
+    if(!user) {
+        throw new ApiError("User does not exists",404)
+    }
+    
+    if(!await user.isPasswordCorrect(oldPassword)) {
+        throw new ApiError("Old password does not matches",401)
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword,Number(process.env.SALT_ROUNDS))
+
+    const updatedUser = await user.updateOne({
+        password : hashedPassword
+    })
+
+    return sanitizeUser(updatedUser)
+}

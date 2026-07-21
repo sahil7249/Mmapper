@@ -14,3 +14,10 @@ export const loginUserSchema = joi.object({
         password: joi.string().required()
     })
 })
+
+export const updatePasswordSchema = joi.object({
+    body:  joi.object({
+        oldPassword : joi.string().required(),
+        newPassword: joi.string().required()
+    })
+})
