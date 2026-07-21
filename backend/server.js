@@ -7,6 +7,7 @@ import { initSocket } from './utils/socket.js'
 import { setServers } from 'node:dns'
 import { errorMiddleware } from './api/midddleware/error.middleware.js'
 import processRouter from './api/router/process.router.js'
+import authRouter from './api/router/auth.router.js'
 setServers(["1.1.1.1", "8.8.8.8"]);
 dotenv.config({ path: '.env' })
 
@@ -18,6 +19,7 @@ const io = initSocket(server)
 app.use(express.json())
 app.use(cors())
 
+app.use('/api/auth',authRouter)
 app.use('/api/map', processRouter)
 app.use(errorMiddleware)
 
