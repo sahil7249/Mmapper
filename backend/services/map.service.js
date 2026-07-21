@@ -1,14 +1,15 @@
 import { Map } from "../database/map.model.js"
 import { ApiError } from "../utils/ApiError.js"
 
-export const saveMindMap = async (title,markdown_content) => {
+export const saveMindMap = async (title,markdown_content,userId) => {
     if([title,markdown_content].some((field) => field.trim() == "")){
         throw new ApiError("All fields are required",400)
     }
     try {
         const map = await Map.create({
             title,
-            markdown_content
+            markdown_content,
+            userId: userId
         })
         
         if(!map) {
@@ -73,5 +74,20 @@ export const deleteMap = async (id) => {
         return deletedMap
     } catch (error) {
         throw new ApiError(error.message)
+    }
+}
+
+export const getMapByUserId = async (id) => {
+    try {
+        const mapsData = await Map.find({ userId : id})
+    
+        if(!mapsData) {
+            throw new ApiError(`No map data exists for user id : ${id}`)
+        }
+
+        return mapsData
+        
+    } catch (error) {
+        throw new ApiError(`Error while fetching map : ${error.message}`)        
     }
 }
