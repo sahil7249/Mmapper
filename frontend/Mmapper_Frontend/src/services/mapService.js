@@ -1,7 +1,7 @@
 import { api } from "../api/axios";
 
 export const getAllMaps = async () => {
-    const { data } = await api.get('/all-maps')
+    const { data } = await api.get('/')
     return data.data
 }
 
@@ -25,7 +25,7 @@ export const uploadPdf = (pdf) => {
 
 export const saveMap = (mapData) => {
     try {
-        const { data } = api.post('/save-map', mapData)
+        const { data } = api.post('/', mapData)
         return data
     } catch (error) {
         console.log("Error while saving data: ",error.message)
