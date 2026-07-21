@@ -7,3 +7,10 @@ export const registerUserSchema = joi.object({
         password: joi.string().required()
     })
 })
+
+export const loginUserSchema = joi.object({
+    body : joi.object({
+        username: joi.string().required(),
+        password: joi.string().required()
+    })
+})

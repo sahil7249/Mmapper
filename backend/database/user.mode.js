@@ -19,8 +19,7 @@ const userSchema = new Schema({
         trim : true
     },
     password: {
-        type : String,
-        lowercase : true
+        type : String
     }
 })
 

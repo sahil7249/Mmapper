@@ -1,4 +1,4 @@
-import { registerUser } from "../../services/auth.service.js"
+import { loginUser, registerUser } from "../../services/auth.service.js"
 
 export const register = async(req,res) => {
     const { username,email,password } = req?.body
@@ -8,4 +8,15 @@ export const register = async(req,res) => {
         message : "User created successfully",
         data : user
     })
+}
+
+export const login = async(req,res) => {
+    const { username,password } = req?.body
+    const data = await loginUser(username,password)
+
+    return res.json({
+        message : "User logged in successfully",
+        data : data
+    })
+
 }
